@@ -56,6 +56,11 @@ The right shift operation ties the cur_location and prev_location together. Thus
    *  We also, unsuccessfully tried to use intel processor trace.
    *  More precisely, we used capstone to measure path information. We break point at the entry of the target function. We disassemble the target function entry till we find first branch/call instruction and we set a break point for it.
    *  When we arrive at that breakpoint we calculate the target and set the breakpoint for the branch target and the fall through instruction. At those breakpoints we update the shared memory map of afl.
+   
+### AFL Dictionary
+-  AFL takes as sample input a json file.
+-  There are many keys and values that the fuzzer need not modify. For eg. the keyword "INTEGER" or keyword "STRING". AFL provides a feature, dictionaries, that lets us do just that. 
+-  We built the dictionary with the keys and values that are constant to avoid spurious crashes
 
 ## Important commits:
 -  [95ae6b6](https://github.com/the-elves/drakvuf/commit/95ae6b644be5b3d2518c66636b5b3fc9747b0757): This commit completes setup of of libhijacker, 
@@ -93,4 +98,8 @@ The right shift operation ties the cur_location and prev_location together. Thus
       3. We used capstone to accomplish this task for us. From the injection function we read instructions and inserted breakpoints at branch instructions instructions and call instructions. 
       4. At those respective breakpoints we perform the coverage measurement and place breakpoints at both, the branch/call target and at the fall through location of the branch.
 -  [d2fe545](https://github.com/the-elves/drakvuf/commit/d2fe545c4507bc61894d229ab6ab655007f92c78): This is the final gsoc commit
+
+## TODO
+-  We have a proof of concept OS fuzzer using hypervisor but there are many spurious crashes that can be avoided. Investigating and implementing strategies to avoid such crashes is to be done in future. 
+-  Currently, wait for loading CR3 is only method used for entry point of injection. Many other entry points can be added for eg. syscalls. These entry points have to be implemented
 
