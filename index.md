@@ -1,10 +1,61 @@
-# Ajinkyas Submission to GSoC'19
-## Project: Operating System Fuzzing using Hypervisor
+# Project: Operating System Fuzzing using Hypervisor 
 ## Introduction: 
-This project aims at fuzzing an operating system kernel using hypervisor. Project [*Drakvuf*](https://drakvuf.com) provides a framework for stealthy, blackbox malware analysis. Building on top of it we developed libhijack that can inject arbitrary function calls inside the guest os. In the next step we integrated AFL with libhijack.
+This project aims at fuzzing an operating system kernel using hypervisor. Project [**Drakvuf**](https://drakvuf.com) provides a framework for stealthy, blackbox malware analysis. It also provides a way to inject processes in guest VMs. Building on top of it we developed libhijack that can inject arbitrary function calls inside the guest VM. Using this we can call various different function calls that are present in the loaded modules in the function (drivers or internal functions). We can use this feature to thus fuzz the drivers and operating system kernel without presence of an agent inside the guest. Also, this approach does not need the guest OS to be emulated therefore allowing full performance benefit of hypervisor.
+
 ### Link to the [repository](https://github.com/the-elves/drakvuf/)
 
 ### Instruction to build and run are [here](https://the-elves.github.io/drakvuf/)
+
+### Approach taken
+-  libinjector provided the code required for injecting arbitrary functions in the guest OS. We built libhijack on top of libinjector which takes an arbitrary function name and argument values for those functions and make function call. 
+-  We then proceeded to build a naive fuzzer that selects a random function from a list of candidate functions, generates random values for its arguments and injects this function.
+-  Next we built *afl_injector.cpp* that can be interfaced with the AFL. At this stage AFL could only run the program
+-  In final stages we built precise coverage measurement required by afl to generate new inputs. 
+
+### Kernel Virtual Address Shadowing (KVA Shadow)
+-  We have to wait for the target process to be scheduled to inject functions into it. We identify the process scheduling event by load to CR3 register. After CR3 loaded we check if the pid is equal to target pid that we want to hijack. We faced an issue at this point. 
+-  Our target process was scheduled with two values in CR3 register. And when process was scheduled with one of these CR3s our injection function does not exist. This was very clearly an problem.
+-  We narrowed down the problem to Kernel Virtual Address Shadow (KVAS). It is windows implementatio of Kernel Page Table Isolation. It is an mitigation for speculative execution attacks. Under this mitigation the two page tables are maintained one of usermode and other for kernel space. These address spaces are charachterized by two CR3 values. Out of these, user page tables wont have the page entries for the kernel. Therefore, the address translation for our target function cannot be completed  
+-  During debugging we had to figure out the exact implementation of KVA Shadow and in turn many of the windows internals of windows processes. For each logical process the windows kernel maintains KPCR structure (Kernel Processor Control Region). This structure contains the pointer to the kernel part of the process. It is stored in the KPROCESS structure. KPROCESS structure has fields *DirectoryPageTable* and *UserDirectoryPageTable* which are base addresses of two page tables discussed above. We added the the checks for checking that process is scheduled using kernel *DirectoryPageTable*
+
+### AFL
+-  American fuzzy lop (AFL) is popular fuzzing tool among the security community. AFL is credited with many bugs and CVEs. 
+-  We had to interface AFL with the libhijack and for that I had to understad the internals of AFL.
+-  Interfacing AFL and afl_injector.cpp was straight forward. I replicated the steps that AFL does through instrumentation. AFL runs in a process started by *afl-fuzz*. *afl-fuzz*, among other things, sets up a shared memory, sets the id of the shared memory in an env var \_\_AFL\_SHM\_ID. *afl-fuzz* also creates two pipes and copies them to file descriptors 198(command) and 199(status).
+-  *afl-fuzz* then forks and from the child calls execve for instrumented target program. In the target program AFL adds instrumentation at the begining of the program that reads the SHM\_ID and attaches to it. Then the target program executes an infinite loop. In the loop
+```
+while(true)
+{
+   block on read from FD 198
+   pid = fork()
+   if(pid == 0)
+   {
+      // In child
+         break; // Therefore continue executing rest of the program
+   }
+   else
+   {
+      //In parent
+      status = waitpid(pid);
+      write(199, status);
+   }
+}
+```
+We built this behaviour in afl_injector.cpp. 
+
+### AFL path coverage measurement
+-  AFL uses the shared memory discussed before to record path information. At every branch instruction, AFL instruments the following code 
+```
+   cur_location = <compile-time-random>
+   shm[cur_location ^ prev_location]++;
+   prev_location = cur_location >> 1;
+```
+The right shift operation ties the cur_location and prev_location together. Thus afl records the path information. 
+-  AFL records path information by instrumenting the branch instructions. We did not have a method of instrumenting the kernel of guest OS. We tried different approaches for recording the path information. For e.g. 
+   *  We realized that since a typical kernel driver calls a lot of functions. Therefore a sequence of functions map to a path almost uniquely. We breakpoint all the functions called by a the driver. And assign a cur_location to every function randomly.
+   *  We also, unsuccessfully tried to use intel processor trace.
+   *  More precisely, we used capstone to measure path information. We break point at the entry of the target function. We disassemble the target function entry till we find first branch/call instruction and we set a break point for it.
+   *  When we arrive at that breakpoint we calculate the target and set the breakpoint for the branch target and the fall through instruction. At those breakpoints we update the shared memory map of afl.
 
 ## Important commits:
 -  [95ae6b6](https://github.com/the-elves/drakvuf/commit/95ae6b644be5b3d2518c66636b5b3fc9747b0757): This commit completes setup of of libhijacker, 
