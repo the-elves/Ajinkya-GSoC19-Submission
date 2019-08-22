@@ -7,7 +7,7 @@ This project aims at fuzzing an operating system kernel using hypervisor. Projec
 ### Instruction to build and run are [here](https://the-elves.github.io/drakvuf/)
 
 ### Approach taken
--  libinjector provided the code required for injecting arbitrary functions in the guest OS. We built libhijack on top of libinjector which takes an arbitrary function name and argument values for those functions and make function call. 
+-  Drakvuf's libinjector provided the code required for injecting arbitrary functions in the guest OS. We built libhijack on top of libinjector which takes an arbitrary function name and argument values for those functions and make function call. 
 -  We then proceeded to build a naive fuzzer that selects a random function from a list of candidate functions, generates random values for its arguments and injects this function.
 -  Next we built *afl_injector.cpp* that can be interfaced with the AFL. At this stage AFL could only run the program
 -  In final stages we built precise coverage measurement required by afl to generate new inputs. 
