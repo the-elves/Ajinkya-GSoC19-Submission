@@ -6,7 +6,7 @@ This project aims at fuzzing an operating system kernel using hypervisor. Projec
 
 ### Instruction to build and run are [here](https://the-elves.github.io/drakvuf/)
 
-### Important commits:
+## Important commits:
 -  [95ae6b6](https://github.com/the-elves/drakvuf/commit/95ae6b644be5b3d2518c66636b5b3fc9747b0757): This commit completes setup of of libhijacker, 
    1. libhijacker is provided a function name and the rekall profile of the module in which the function is present.
    2. libhijacker first determines the address of function 
