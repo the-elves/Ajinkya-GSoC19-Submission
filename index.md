@@ -102,4 +102,5 @@ The right shift operation ties the cur_location and prev_location together. Thus
 ## TODO
 -  We have a proof of concept OS fuzzer using hypervisor but there are many spurious crashes that can be avoided. Investigating and implementing strategies to avoid such crashes is to be done in future. 
 -  Currently, wait for loading CR3 is only method used for entry point of injection. Many other entry points can be added for eg. syscalls. These entry points have to be implemented
+-  Currently, number of fuzzing executions per second is low and investigation should be done to increase the speed of fuzzing. 
 
