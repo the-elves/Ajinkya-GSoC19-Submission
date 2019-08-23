@@ -12,6 +12,8 @@ This project aims at fuzzing an operating system kernel using hypervisor. Projec
 -  Next we built *afl_injector.cpp* that can be interfaced with the AFL. At this stage AFL could only run the program
 -  In final stages we built precise coverage measurement required by afl to generate new inputs. 
 
+[Block Diagram](OS_Fuzzing.png)
+
 ### Kernel Virtual Address Shadowing (KVA Shadow)
 -  We have to wait for the target process to be scheduled to inject functions into it. We identify the process scheduling event by load to CR3 register. After CR3 loaded we check if the pid is equal to target pid that we want to hijack. We faced an issue at this point. 
 -  Our target process was scheduled with two values in CR3 register. And when process was scheduled with one of these CR3s our injection function does not exist. This was very clearly an problem.
