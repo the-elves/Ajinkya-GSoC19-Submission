@@ -110,4 +110,4 @@ The right shift operation ties the cur_location and prev_location together. Thus
 This project is pulled into a [gsoc_2019_afl_injector branch of drakvuf](https://github.com/tklengyel/drakvuf/tree/gsoc_2019_afl_injector)
 
 ## Acknowlegements
-My sincere thanks to @tklengyel for his support and guidance. His knowledge and command over tools were of great help when I was stuck. I am greatful for the opportunity provided by The Honeynet Project and Google Summer of Code 2019 team for organizing this event.
+My sincere thanks to @tklengyel for his support and guidance. His knowledge and command over tools were of great help when I was stuck. I am grateful for the opportunity provided by The Honeynet Project and Google Summer of Code 2019 team for organizing this event.
