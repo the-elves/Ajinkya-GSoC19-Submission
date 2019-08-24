@@ -107,7 +107,7 @@ The right shift operation ties the cur_location and prev_location together. Thus
 -  Currently, number of fuzzing executions per second is low and investigation should be done to increase the speed of fuzzing. 
 
 ## Current Status
-This project is pulled into a gsoc_2019_afl_injector branch of [drakvuf](https://github.com/tklengyel/drakvuf/tree/gsoc_2019_afl_injector)
+This project is pulled into a [gsoc_2019_afl_injector branch of drakvuf](https://github.com/tklengyel/drakvuf/tree/gsoc_2019_afl_injector)
 
 ## Acknowlegements
 My sincere thanks to @tklengyel for his support and quick replies. His knowledge and command over tools were of great help when we were stuck. I am very thankful to a very active honeynet organization and the community for the base on which the project is built. Last, but not the least, I am greatful to Google Summer of Code 2019 team for organizing this event.
