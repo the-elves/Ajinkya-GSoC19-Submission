@@ -1,23 +1,5 @@
 # Project: Operating System Fuzzing using Hypervisor 
 ## Introduction: 
-This project aims at fuzzing an operating system kernel using hypervisor. Project [**Drakvuf**](https://drakvuf.com) provides a framework for stealthy, blackbox malware analysis. It also provides a way to inject processes in guest VMs. Building on top of it we developed libhijack that can inject arbitrary function calls inside the guest VM. Using this we can call different function calls that are present in the loaded modules in the function (drivers or internal functions). We can use this feature to thus fuzz the drivers and operating system kernel without the presence of an agent inside the guest. Also, this approach does not need the guest OS to be emulated therefore allowing the full performance benefits of the hypervisor.
-
-### Link to the [repository](https://github.com/the-elves/drakvuf/)
-
-### Instruction to build and run are [here](https://the-elves.github.io/drakvuf/)
-
-### Approach taken
--  Drakvuf's libinjector provided the code required for injecting arbitrary functions in the guest OS. We built libhijack on top of libinjector which takes an arbitrary function name and argument values for those functions and make function call. 
--  We then proceeded to build a naive fuzzer that selects a random function from a list of candidate functions, generates random values for its arguments and injects this function.
--  Next we built *afl_injector.cpp* that can be interfaced with the AFL. At this stage AFL could only run the program
--  In final stages we built precise coverage measurement required by afl to generate new inputs. 
-
-![Block Diagram](OS_Fuzzing.png)
-
-### Kernel Virtual Address Shadowing (KVA Shadow)
--  We have to wait for the target process to be scheduled to inject functions into it. We identify the process scheduling event by load to CR3 register. After CR3 loaded we check if the pid is equal to target pid that we want to hijack. We faced an issue at this point. 
--  Our target process was scheduled with two values in CR3 register. And when # Project: Operating System Fuzzing using Hypervisor 
-## Introduction: 
 This project aims at fuzzing an operating system kernel using hypervisor. Project [**Drakvuf**](https://drakvuf.com) provides a framework for stealthy, blackbox malware analysis. It also provides a way to inject processes in guest VMs. Building on top of it we developed libhijack that can inject arbitrary function calls inside the guest VM. Using this we can call various different function calls that are present in the loaded modules in the function (drivers or internal functions). We can use this feature to thus fuzz the drivers and operating system kernel without presence of an agent inside the guest. Also, this approach does not need the guest OS to be emulated therefore allowing full performance benefit of hypervisor.
 
 ### Link to the [repository](https://github.com/the-elves/drakvuf/)
